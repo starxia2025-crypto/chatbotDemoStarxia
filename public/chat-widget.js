@@ -83,23 +83,27 @@
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #1e1b4b, #0b1023);
-  border: 2px solid rgba(196, 181, 253, 0.75);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  outline: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   position: relative;
   flex: 0 0 auto;
-  box-shadow: none;
 }
 
-.starxia-avatar img,
-.starxia-header-avatar img {
+.starxia-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  border: none;
+  border-radius: 50%;
+  box-shadow: none;
+  outline: none;
 }
 
 .starxia-online-dot {
