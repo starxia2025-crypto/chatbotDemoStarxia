@@ -3,12 +3,12 @@
     apiBase: "",
     origin: window.location.hostname,
     pageUrl: window.location.href,
-    title: "Starxist",
+    title: "Starbot",
     subtitle: "Asesor IA Gratuito",
     position: "right",
     avatarUrl: "",
     initialMessages: [
-      "Hola, soy Starxist.",
+      "Hola, soy Starbot.",
       "Puedo ayudarte a aclarar qué necesitas para una web, app, automatización o chatbot y orientarte hacia la opción que más te convenga."
     ],
     contactUrl: "https://starxia.com/#contacto"
@@ -57,68 +57,95 @@
         font-family: "Segoe UI", "Helvetica Neue", sans-serif;
       }
       .starxia-launcher {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        border: 1px solid rgba(132, 204, 22, 0.35);
-        background:
-          radial-gradient(circle at top left, rgba(139, 92, 246, 0.4), transparent 35%),
-          linear-gradient(135deg, rgba(10, 14, 35, 0.96), rgba(6, 9, 22, 0.96));
-        border-radius: 999px;
-        padding: 10px 18px 10px 10px;
-        box-shadow: 0 18px 40px rgba(5, 10, 30, 0.42);
-        color: #fff;
-        cursor: pointer;
-        min-width: 220px;
-        backdrop-filter: blur(12px);
-      }
-      .starxia-avatar {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: radial-gradient(circle at 30% 30%, #1e1b4b, #0b1023);
-        border: 2px solid rgba(196, 181, 253, 0.7);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25);
-        position: relative;
-        flex: 0 0 auto;
-      }
-      .starxia-avatar img,
-      .starxia-header-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-      .starxia-online-dot {
-        position: absolute;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: #22c55e;
-        right: 4px;
-        bottom: 6px;
-        border: 2px solid #08101f;
-      }
-      .starxia-launcher-title {
-        font-size: 22px;
-        font-weight: 700;
-        line-height: 1;
-        letter-spacing: -0.03em;
-      }
-      .starxia-launcher-badge {
-        display: inline-flex;
-        align-items: center;
-        margin-top: 6px;
-        font-size: 13px;
-        color: #bef264;
-        padding: 6px 12px;
-        border-radius: 999px;
-        border: 1px solid rgba(132, 204, 22, 0.55);
-        background: rgba(5, 20, 6, 0.38);
-      }
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid rgba(132, 204, 22, 0.45);
+  background:
+    radial-gradient(circle at top left, rgba(139, 92, 246, 0.4), transparent 35%),
+    linear-gradient(135deg, rgba(10, 14, 35, 0.96), rgba(6, 9, 22, 0.96));
+  border-radius: 999px;
+  padding: 8px 18px 8px 8px;
+  box-shadow: 0 18px 40px rgba(5, 10, 30, 0.42);
+  color: #fff;
+  cursor: pointer;
+  min-width: 260px;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.starxia-launcher:hover {
+  border-color: rgba(190, 242, 100, 0.9);
+  transform: translateY(-1px);
+}
+
+.starxia-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #1e1b4b, #0b1023);
+  border: 2px solid rgba(196, 181, 253, 0.75);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  flex: 0 0 auto;
+  box-shadow: none;
+}
+
+.starxia-avatar img,
+.starxia-header-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.starxia-online-dot {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #22c55e;
+  right: 5px;
+  bottom: 7px;
+  border: 2px solid #08101f;
+}
+
+.starxia-launcher-copy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.starxia-launcher-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  transition: color 0.2s ease;
+}
+
+.starxia-launcher:hover .starxia-launcher-title {
+  color: #bef264;
+}
+
+.starxia-launcher-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  color: #bef264;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(132, 204, 22, 0.65);
+  background: rgba(5, 20, 6, 0.38);
+  font-weight: 700;
+  white-space: nowrap;
+}
+      
       .starxia-panel {
         width: min(390px, calc(100vw - 24px));
         height: min(680px, calc(100vh - 120px));
