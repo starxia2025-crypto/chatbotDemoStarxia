@@ -390,6 +390,30 @@
     }
   }
 
+  function revealAssistantContent(messageEl, hasCta) {
+    const userMessages = messagesEl.querySelectorAll(".starxia-message--user");
+    const lastUserMessage = userMessages[userMessages.length - 1];
+    const messageHeight = messageEl ? messageEl.offsetHeight : 0;
+    const shouldAutoScroll =
+      !hasCta &&
+      messageHeight > 0 &&
+      messageHeight <= 140;
+
+    if (shouldAutoScroll) {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      return;
+    }
+
+    if (!lastUserMessage) {
+      return;
+    }
+
+    const containerRect = messagesEl.getBoundingClientRect();
+    const userRect = lastUserMessage.getBoundingClientRect();
+    const safeOffset = Math.max(0, userRect.bottom - containerRect.bottom + 24);
+    messagesEl.scrollTop += safeOffset;
+  }
+
   function renderLeadCard(schema, ctaKind, suggestedService) {
     const card = document.createElement("div");
     card.className = "starxia-cta";
@@ -398,11 +422,9 @@
       <div class="starxia-cta-copy">${escapeHtml(schema.description || "Déjanos contexto y Starxia podrá ayudarte mejor.")}</div>
       ${suggestedService ? `<div class="starxia-cta-copy">Servicio sugerido: <strong>${escapeHtml(suggestedService)}</strong></div>` : ""}
       <button type="button" class="starxia-cta-button starxia-cta-chat">${ctaKind === "quote" ? "Responder por chat" : "Quiero que me guiéis por chat"}</button>
-      <button type="button" class="starxia-cta-button starxia-cta-button--secondary starxia-cta-form">Ir al formulario de contacto</button>
     `;
 
     const chatButton = card.querySelector(".starxia-cta-chat");
-    const formButton = card.querySelector(".starxia-cta-form");
 
     chatButton.addEventListener("click", async () => {
       const payload = await request("/api/chat/lead-capture/start", {
@@ -418,19 +440,10 @@
       leadCaptureActive = !!payload.lead_capture_active;
       updateLeadCaptureUi();
       chatButton.classList.add("starxia-hidden");
-      formButton.classList.add("starxia-hidden");
       renderMessage("assistant", payload.reply);
       logEvent("lead_capture_started_from_cta", {
         suggested_service: suggestedService || null
       });
-    });
-
-    formButton.addEventListener("click", () => {
-      logEvent("cta_contact_click", {
-        suggested_service: suggestedService || null,
-        destination: config.contactUrl
-      });
-      window.location.href = config.contactUrl;
     });
 
     const previousScrollTop = messagesEl.scrollTop;
@@ -510,6 +523,7 @@
       leadCaptureActive = !!payload.lead_capture_active;
       updateLeadCaptureUi();
       renderMessage("assistant", payload.reply, { scrollMode: "preserve" });
+      const assistantMessage = messagesEl.lastElementChild;
 
       if (payload.should_show_cta && payload.lead_form_schema) {
         renderLeadCard(payload.lead_form_schema, payload.cta_kind, payload.suggested_service);
@@ -518,6 +532,8 @@
           suggested_service: payload.suggested_service
         });
       }
+
+      revealAssistantContent(assistantMessage, !!payload.should_show_cta);
     } catch (error) {
       renderMessage(
         "assistant",
