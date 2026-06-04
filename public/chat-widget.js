@@ -327,10 +327,12 @@
       }
     </style>
     <button type="button" class="starxia-launcher" aria-label="Abrir chat de Starxia">
-      <span class="starxia-avatar">
-        ${config.avatarUrl ? `<img src="${config.avatarUrl}" alt="Avatar de Starxist" />` : "AI"}
-        <span class="starxia-online-dot"></span>
-      </span>
+      <span class="starxia-avatar-wrap">
+  <span class="starxia-avatar">
+    ${config.avatarUrl ? `<img src="${config.avatarUrl}" alt="Avatar de ${escapeHtml(config.title)}" />` : "AI"}
+  </span>
+  <span class="starxia-online-dot"></span>
+</span>
       <span class="starxia-launcher-copy">
         <span class="starxia-launcher-title">${escapeHtml(config.title)}</span>
         <span class="starxia-launcher-badge">${escapeHtml(config.subtitle)}</span>
