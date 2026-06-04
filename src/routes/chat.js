@@ -230,7 +230,8 @@ chatRouter.post("/api/chat/message", async (req, res, next) => {
         cta_kind: error.intentResult?.ctaKind || null,
         suggested_service: error.intentResult?.suggestedService || null,
         lead_form_schema: error.intentResult?.shouldShowCta ? buildFallbackLeadForm() : null,
-        lead_capture_active: false
+        lead_capture_active: false,
+        debug_error: env.debugOpenAi ? error.debugError || "unknown_openai_error" : undefined
       });
     }
   } catch (error) {

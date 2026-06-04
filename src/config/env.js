@@ -24,6 +24,7 @@ const toList = (value) =>
 export const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   port: Number(process.env.PORT || 3000),
+  debugOpenAi: `${process.env.DEBUG_OPENAI || "false"}` === "true",
   openAiApiKey: process.env.OPENAI_API_KEY,
   openAiModel: process.env.OPENAI_MODEL || "gpt-4o-mini",
   openAiPremiumModel: process.env.OPENAI_PREMIUM_MODEL || "gpt-4o",

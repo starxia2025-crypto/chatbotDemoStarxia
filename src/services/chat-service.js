@@ -47,6 +47,14 @@ function serializeOpenAiError(error) {
   };
 }
 
+function formatDebugError(error) {
+  const details = serializeOpenAiError(error);
+  return Object.entries(details)
+    .filter(([, value]) => value !== null && value !== undefined && value !== "")
+    .map(([key, value]) => `${key}: ${typeof value === "object" ? JSON.stringify(value) : value}`)
+    .join(" | ");
+}
+
 export async function processChatMessage({
   conversation,
   message,
@@ -118,6 +126,7 @@ export async function processChatMessage({
     };
   } catch (error) {
     const reply = fallbackReply();
+    const debugError = formatDebugError(error);
     console.error("OpenAI chat request failed", {
       conversationId: conversation.id,
       preferredModel,
@@ -136,7 +145,8 @@ export async function processChatMessage({
     });
     throw Object.assign(error, {
       safeReply: reply,
-      intentResult
+      intentResult,
+      debugError
     });
   }
 }
