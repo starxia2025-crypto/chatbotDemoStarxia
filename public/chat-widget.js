@@ -329,8 +329,7 @@
     <button type="button" class="starxia-launcher" aria-label="Abrir chat de Starxia">
       <span class="starxia-avatar-wrap">
   <span class="starxia-avatar">
-    ${config.avatarUrl ? `<img src="${config.avatarUrl}" alt="Avatar de ${escapeHtml(config.title)}" />` : "AI"}
-  </span>
+  ${config.avatarUrl ? `<img src="${config.avatarUrl}" alt="Avatar de ${escapeHtml(config.title)}" />` : "AI"}
   <span class="starxia-online-dot"></span>
 </span>
       <span class="starxia-launcher-copy">
