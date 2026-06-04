@@ -226,12 +226,12 @@ async function createPrimaryCompletion({
 
 export async function runOpenAiDebugChecks() {
   const model = env.openAiModel;
-  const systemPrompt = await buildSystemPrompt();
 
   const result = {
     model,
     simple: null,
-    contextual: null
+    contextual: null,
+    prompt: null
   };
 
   try {
@@ -263,6 +263,12 @@ export async function runOpenAiDebugChecks() {
   }
 
   try {
+    const systemPrompt = await buildSystemPrompt();
+    result.prompt = {
+      ok: true,
+      length: systemPrompt.length
+    };
+
     const contextualResponse = await client.chat.completions.create({
       model,
       messages: [
@@ -288,6 +294,12 @@ export async function runOpenAiDebugChecks() {
       usage: extractUsage(contextualResponse)
     };
   } catch (error) {
+    if (!result.prompt) {
+      result.prompt = {
+        ok: false,
+        error: serializeOpenAiError(error)
+      };
+    }
     result.contextual = {
       ok: false,
       error: serializeOpenAiError(error)
