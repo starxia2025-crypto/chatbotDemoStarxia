@@ -69,6 +69,12 @@ function buildFallbackLeadForm() {
   };
 }
 
+function ensureReply(reply) {
+  return reply && `${reply}`.trim()
+    ? reply
+    : "Ahora mismo no he podido responder bien por un problema temporal. Si quieres, vuelve a intentarlo o te ayudo a dejar tu caso preparado para que Starxia lo revise.";
+}
+
 chatRouter.post("/api/chat/session", async (req, res, next) => {
   try {
     const payload = sessionSchema.parse(req.body);
@@ -201,7 +207,7 @@ chatRouter.post("/api/chat/message", async (req, res, next) => {
       });
 
       res.json({
-        reply: result.reply,
+        reply: ensureReply(result.reply),
         conversation_id: conversation.id,
         should_show_cta: result.shouldShowCta,
         cta_kind: result.ctaKind,
@@ -218,7 +224,7 @@ chatRouter.post("/api/chat/message", async (req, res, next) => {
       });
 
       res.status(200).json({
-        reply: error.safeReply,
+        reply: ensureReply(error.safeReply),
         conversation_id: conversation.id,
         should_show_cta: error.intentResult?.shouldShowCta || false,
         cta_kind: error.intentResult?.ctaKind || null,

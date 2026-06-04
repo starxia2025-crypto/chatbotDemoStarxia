@@ -29,6 +29,26 @@ function extractUsage(response) {
   };
 }
 
+function extractReplyText(response) {
+  if (typeof response.output_text === "string" && response.output_text.trim()) {
+    return response.output_text;
+  }
+
+  const outputItems = Array.isArray(response.output) ? response.output : [];
+  const textParts = [];
+
+  for (const item of outputItems) {
+    const contentItems = Array.isArray(item?.content) ? item.content : [];
+    for (const content of contentItems) {
+      if (typeof content?.text === "string" && content.text.trim()) {
+        textParts.push(content.text.trim());
+      }
+    }
+  }
+
+  return textParts.join("\n\n").trim();
+}
+
 function fallbackReply() {
   return "Ahora mismo no he podido responder bien por un problema temporal. Si quieres, cuéntame en una frase qué necesitas y lo intentamos de nuevo, o te preparo el paso para que Starxia revise tu caso.";
 }
@@ -78,7 +98,8 @@ export async function processChatMessage({
       ]
     });
 
-    const reply = sanitizeText(response.output_text || fallbackReply(), 4000);
+    const rawReply = extractReplyText(response);
+    const reply = sanitizeText(rawReply || fallbackReply(), 4000);
     const usage = extractUsage(response);
 
     await appendMessage({
@@ -89,6 +110,14 @@ export async function processChatMessage({
       tokensIn: usage.inputTokens,
       tokensOut: usage.outputTokens
     });
+
+    if (!rawReply) {
+      console.warn("OpenAI response did not include text output; using fallback reply.", {
+        conversationId: conversation.id,
+        responseId: response.id,
+        model: response.model
+      });
+    }
 
     return {
       reply,
