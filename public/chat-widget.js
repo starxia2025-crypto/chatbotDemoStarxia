@@ -10,7 +10,8 @@
     initialMessages: [
       "Hola, soy Starxist.",
       "Puedo ayudarte a aclarar qué necesitas para una web, app, automatización o chatbot y orientarte hacia la opción que más te convenga."
-    ]
+    ],
+    contactUrl: "https://starxia.com/#contacto"
   };
 
   const config = Object.assign({}, defaultConfig, window.STARXIA_CHAT_CONFIG || {});
@@ -234,17 +235,6 @@
         color: #fff;
         border: 1px solid rgba(255,255,255,0.12);
       }
-      .starxia-form {
-        display: grid;
-        gap: 10px;
-        margin-top: 12px;
-      }
-      .starxia-form label {
-        display: grid;
-        gap: 6px;
-        color: #d7e2ff;
-        font-size: 12px;
-      }
       .starxia-form input,
       .starxia-form textarea,
       .starxia-form select,
@@ -257,19 +247,6 @@
         padding: 11px 12px;
         font-size: 14px;
         box-sizing: border-box;
-      }
-      .starxia-form textarea {
-        min-height: 88px;
-        resize: vertical;
-      }
-      .starxia-form button {
-        border: none;
-        background: linear-gradient(135deg, #a3e635, #84cc16);
-        color: #0b1304;
-        font-weight: 700;
-        padding: 12px 14px;
-        border-radius: 14px;
-        cursor: pointer;
       }
       .starxia-composer {
         padding: 14px 18px 18px;
@@ -414,13 +391,11 @@
       <div class="starxia-cta-copy">${escapeHtml(schema.description || "Déjanos contexto y Starxia podrá ayudarte mejor.")}</div>
       ${suggestedService ? `<div class="starxia-cta-copy">Servicio sugerido: <strong>${escapeHtml(suggestedService)}</strong></div>` : ""}
       <button type="button" class="starxia-cta-button starxia-cta-chat">${ctaKind === "quote" ? "Responder por chat" : "Quiero que me guiéis por chat"}</button>
-      <button type="button" class="starxia-cta-button starxia-cta-button--secondary starxia-cta-form">${ctaKind === "quote" ? "Abrir formulario" : "Dejar datos en formulario"}</button>
-      <form class="starxia-form starxia-hidden"></form>
+      <button type="button" class="starxia-cta-button starxia-cta-button--secondary starxia-cta-form">${ctaKind === "quote" ? "Ir al formulario" : "Ir a contacto"}</button>
     `;
 
     const chatButton = card.querySelector(".starxia-cta-chat");
     const formButton = card.querySelector(".starxia-cta-form");
-    const form = card.querySelector(".starxia-form");
 
     chatButton.addEventListener("click", async () => {
       const payload = await request("/api/chat/lead-capture/start", {
@@ -444,61 +419,17 @@
     });
 
     formButton.addEventListener("click", () => {
-      if (!currentLeadSchema) {
-        return;
-      }
-
-      form.innerHTML =
-        currentLeadSchema.fields
-          .map((field) => {
-            const options = Array.isArray(field.options)
-              ? field.options
-                  .map(
-                    (option) =>
-                      `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`
-                  )
-                  .join("")
-              : "";
-            const value = escapeHtml(field.defaultValue || "");
-            if (field.type === "textarea") {
-              return `<label>${escapeHtml(field.label)}<textarea name="${escapeHtml(field.name)}" ${field.required ? "required" : ""}>${value}</textarea></label>`;
-            }
-            if (field.type === "select") {
-              return `<label>${escapeHtml(field.label)}<select name="${escapeHtml(field.name)}">${options}</select></label>`;
-            }
-            return `<label>${escapeHtml(field.label)}<input type="${escapeHtml(field.type || "text")}" name="${escapeHtml(field.name)}" value="${value}" ${field.required ? "required" : ""} /></label>`;
-          })
-          .join("") + `<button type="submit">Enviar datos</button>`;
-
-      form.classList.remove("starxia-hidden");
-      chatButton.classList.add("starxia-hidden");
-      formButton.classList.add("starxia-hidden");
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    });
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const formData = new FormData(form);
-      const payload = { conversation_id: conversationId };
-
-      for (const [key, value] of formData.entries()) {
-        payload[key] = value;
-      }
-
-      await request("/api/chat/lead", {
-        method: "POST",
-        body: JSON.stringify(payload)
+      logEvent("cta_contact_click", {
+        suggested_service: suggestedService || null,
+        destination: config.contactUrl
       });
-
-      form.innerHTML = `<div class="starxia-helper">Perfecto. Starxia ya tiene tus datos para revisar tu caso.</div>`;
-      renderMessage(
-        "assistant",
-        "Gracias. Ya he dejado tus datos preparados para que Starxia pueda revisar tu caso con más contexto."
-      );
+      window.location.href = config.contactUrl;
     });
 
     messagesEl.appendChild(card);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    requestAnimationFrame(() => {
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 
   async function logEvent(eventType, payload) {
