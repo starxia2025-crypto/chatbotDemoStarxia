@@ -54,6 +54,21 @@ El backend expone:
 - Expón el backend detrás de Nginx o Caddy con HTTPS.
 - Sirve el archivo del widget en `https://tu-dominio-vps.com/widget/chat-widget.js`.
 
+### EasyPanel con Dockerfile
+
+Si EasyPanel te da problemas con Nixpacks, usa la opción `Dockerfile`.
+
+- Ruta de compilación: `/`
+- Dockerfile: `Dockerfile`
+- No hace falta comando de instalación, compilación ni inicio manual
+- Puerto interno: `3000`
+
+El contenedor arrancará con:
+
+```bash
+node src/server.js
+```
+
 ### WordPress
 
 1. Si quieres usar directamente el avatar actual, ya queda servido desde `/widget/starxist-avatar.png`.
