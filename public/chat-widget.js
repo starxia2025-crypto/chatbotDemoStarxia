@@ -372,14 +372,26 @@
     }
   }
 
-  function renderMessage(role, content) {
+  function renderMessage(role, content, options) {
+    const settings = Object.assign(
+      {
+        scrollMode: "bottom"
+      },
+      options || {}
+    );
     const message = document.createElement("div");
     message.className =
       "starxia-message " +
       (role === "user" ? "starxia-message--user" : "starxia-message--assistant");
     message.textContent = content;
+    const previousScrollTop = messagesEl.scrollTop;
     messagesEl.appendChild(message);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    if (settings.scrollMode === "bottom") {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    } else if (settings.scrollMode === "preserve") {
+      messagesEl.scrollTop = previousScrollTop;
+    }
   }
 
   function renderLeadCard(schema, ctaKind, suggestedService) {
@@ -391,7 +403,7 @@
       <div class="starxia-cta-copy">${escapeHtml(schema.description || "Déjanos contexto y Starxia podrá ayudarte mejor.")}</div>
       ${suggestedService ? `<div class="starxia-cta-copy">Servicio sugerido: <strong>${escapeHtml(suggestedService)}</strong></div>` : ""}
       <button type="button" class="starxia-cta-button starxia-cta-chat">${ctaKind === "quote" ? "Responder por chat" : "Quiero que me guiéis por chat"}</button>
-      <button type="button" class="starxia-cta-button starxia-cta-button--secondary starxia-cta-form">${ctaKind === "quote" ? "Ir al formulario" : "Ir a contacto"}</button>
+      <button type="button" class="starxia-cta-button starxia-cta-button--secondary starxia-cta-form">Dejar datos en formulario</button>
     `;
 
     const chatButton = card.querySelector(".starxia-cta-chat");
@@ -427,9 +439,6 @@
     });
 
     messagesEl.appendChild(card);
-    requestAnimationFrame(() => {
-      card.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
   }
 
   async function logEvent(eventType, payload) {
@@ -503,7 +512,7 @@
       conversationId = payload.conversation_id;
       leadCaptureActive = !!payload.lead_capture_active;
       updateLeadCaptureUi();
-      renderMessage("assistant", payload.reply);
+      renderMessage("assistant", payload.reply, { scrollMode: "preserve" });
 
       if (payload.should_show_cta && payload.lead_form_schema) {
         renderLeadCard(payload.lead_form_schema, payload.cta_kind, payload.suggested_service);
