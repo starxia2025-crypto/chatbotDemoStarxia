@@ -32,6 +32,19 @@ export async function createConversation(visitorDbId, intent = "general") {
   return rows[0];
 }
 
+export async function closeActiveConversations(visitorDbId) {
+  await pool.query(
+    `
+      UPDATE conversations
+      SET status = 'ended',
+          ended_at = COALESCE(ended_at, NOW())
+      WHERE visitor_id = $1
+        AND status = 'active'
+    `,
+    [visitorDbId]
+  );
+}
+
 export async function getOrCreateConversation(visitorDbId, intent = "general") {
   const existing = await getActiveConversation(visitorDbId);
   if (existing) {

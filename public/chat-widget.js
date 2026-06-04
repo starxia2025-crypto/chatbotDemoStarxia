@@ -23,7 +23,6 @@
   }
 
   const KEY = "visitor_id";
-  const SESSION_KEY = "starxia_chat_conversation_id";
 
   function getVisitorId() {
     let id = localStorage.getItem(KEY);
@@ -366,7 +365,7 @@
   const sendButton = root.querySelector(".starxia-send");
   const helperText = root.querySelector(".starxia-helper");
 
-  let conversationId = localStorage.getItem(SESSION_KEY) || null;
+  let conversationId = null;
   let sessionLoaded = false;
   let currentLeadSchema = null;
   let leadCaptureActive = false;
@@ -533,7 +532,6 @@
     });
 
     conversationId = payload.conversation_id;
-    localStorage.setItem(SESSION_KEY, conversationId);
     leadCaptureActive = !!payload.lead_capture_active;
     updateLeadCaptureUi();
 
@@ -572,7 +570,6 @@
       });
 
       conversationId = payload.conversation_id;
-      localStorage.setItem(SESSION_KEY, conversationId);
       leadCaptureActive = !!payload.lead_capture_active;
       updateLeadCaptureUi();
       renderMessage("assistant", payload.reply);

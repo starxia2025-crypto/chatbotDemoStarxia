@@ -5,6 +5,8 @@ import { hashIp } from "../lib/ip.js";
 import { sanitizeText } from "../lib/sanitize.js";
 import {
   appendMessage,
+  closeActiveConversations,
+  createConversation,
   getConversationById,
   getConversationHistory,
   getOrCreateConversation,
@@ -79,9 +81,8 @@ chatRouter.post("/api/chat/session", async (req, res, next) => {
   try {
     const payload = sessionSchema.parse(req.body);
     const visitor = await resolveVisitor(req, payload);
-    const conversation = await getOrCreateConversation(visitor.id, "general");
-    const history = await getConversationHistory(conversation.id, env.maxHistoryMessages);
-    const leadCaptureState = await getLeadCaptureState(conversation.id);
+    await closeActiveConversations(visitor.id);
+    const conversation = await createConversation(visitor.id, "general");
 
     await logChatEvent({
       visitorDbId: visitor.id,
@@ -93,8 +94,8 @@ chatRouter.post("/api/chat/session", async (req, res, next) => {
     res.json({
       visitor_id: visitor.visitor_id,
       conversation_id: conversation.id,
-      messages: history,
-      lead_capture_active: leadCaptureState?.status === "active"
+      messages: [],
+      lead_capture_active: false
     });
   } catch (error) {
     next(error);
