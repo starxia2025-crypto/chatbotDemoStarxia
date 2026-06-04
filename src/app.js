@@ -38,7 +38,15 @@ export function createApp() {
   app.use(
     "/widget",
     express.static(path.resolve(__dirname, "..", "public"), {
-      maxAge: "1h"
+      etag: true,
+      maxAge: 0,
+      setHeaders(res, filePath) {
+        if (filePath.endsWith("chat-widget.js")) {
+          res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+          res.setHeader("Pragma", "no-cache");
+          res.setHeader("Expires", "0");
+        }
+      }
     })
   );
 

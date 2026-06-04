@@ -235,9 +235,6 @@
         color: #fff;
         border: 1px solid rgba(255,255,255,0.12);
       }
-      .starxia-form input,
-      .starxia-form textarea,
-      .starxia-form select,
       .starxia-composer textarea {
         width: 100%;
         border-radius: 14px;
@@ -344,7 +341,6 @@
 
   let conversationId = null;
   let sessionLoaded = false;
-  let currentLeadSchema = null;
   let leadCaptureActive = false;
 
   async function request(path, options) {
@@ -395,7 +391,6 @@
   }
 
   function renderLeadCard(schema, ctaKind, suggestedService) {
-    currentLeadSchema = schema;
     const card = document.createElement("div");
     card.className = "starxia-cta";
     card.innerHTML = `
@@ -403,7 +398,7 @@
       <div class="starxia-cta-copy">${escapeHtml(schema.description || "Déjanos contexto y Starxia podrá ayudarte mejor.")}</div>
       ${suggestedService ? `<div class="starxia-cta-copy">Servicio sugerido: <strong>${escapeHtml(suggestedService)}</strong></div>` : ""}
       <button type="button" class="starxia-cta-button starxia-cta-chat">${ctaKind === "quote" ? "Responder por chat" : "Quiero que me guiéis por chat"}</button>
-      <button type="button" class="starxia-cta-button starxia-cta-button--secondary starxia-cta-form">Dejar datos en formulario</button>
+      <button type="button" class="starxia-cta-button starxia-cta-button--secondary starxia-cta-form">Ir al formulario de contacto</button>
     `;
 
     const chatButton = card.querySelector(".starxia-cta-chat");
@@ -438,7 +433,9 @@
       window.location.href = config.contactUrl;
     });
 
+    const previousScrollTop = messagesEl.scrollTop;
     messagesEl.appendChild(card);
+    messagesEl.scrollTop = previousScrollTop;
   }
 
   async function logEvent(eventType, payload) {
