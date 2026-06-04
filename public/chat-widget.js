@@ -422,28 +422,25 @@
       <div class="starxia-cta-copy">${escapeHtml(schema.description || "Déjanos contexto y Starxia podrá ayudarte mejor.")}</div>
       ${suggestedService ? `<div class="starxia-cta-copy">Servicio sugerido: <strong>${escapeHtml(suggestedService)}</strong></div>` : ""}
       <button type="button" class="starxia-cta-button starxia-cta-chat">${ctaKind === "quote" ? "Responder por chat" : "Quiero que me guiéis por chat"}</button>
+      <button type="button" class="starxia-cta-button starxia-cta-button--secondary starxia-cta-form">Ir al formulario de contacto</button>
     `;
 
     const chatButton = card.querySelector(".starxia-cta-chat");
+    const contactButton = card.querySelector(".starxia-cta-form");
+    if (chatButton) {
+      chatButton.remove();
+    }
+    if (contactButton) {
+      contactButton.classList.remove("starxia-cta-button--secondary");
+    }
 
-    chatButton.addEventListener("click", async () => {
-      const payload = await request("/api/chat/lead-capture/start", {
-        method: "POST",
-        body: JSON.stringify({
-          visitor_id: getVisitorId(),
-          conversation_id: conversationId,
-          origin: config.origin,
-          suggested_service: suggestedService || ""
-        })
+    contactButton.addEventListener("click", () => {
+      logEvent("cta_contact_click", {
+        cta_kind: ctaKind || null,
+        suggested_service: suggestedService || null,
+        destination: config.contactUrl
       });
-
-      leadCaptureActive = !!payload.lead_capture_active;
-      updateLeadCaptureUi();
-      chatButton.classList.add("starxia-hidden");
-      renderMessage("assistant", payload.reply);
-      logEvent("lead_capture_started_from_cta", {
-        suggested_service: suggestedService || null
-      });
+      window.location.href = config.contactUrl;
     });
 
     const previousScrollTop = messagesEl.scrollTop;
