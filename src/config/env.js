@@ -7,6 +7,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..", "..");
+const defaultRawContentRelativePath = "./# RAW para chatbot de atención al cliente.md";
 
 const required = ["OPENAI_API_KEY", "DATABASE_URL"];
 for (const key of required) {
@@ -30,7 +31,7 @@ export const env = {
   openAiPremiumModel: process.env.OPENAI_PREMIUM_MODEL || "gpt-4o",
   databaseUrl: process.env.DATABASE_URL,
   allowedOrigins: toList(process.env.ALLOWED_ORIGINS),
-  rawContentPath: path.resolve(projectRoot, process.env.RAW_CONTENT_PATH || "./# RAW para chatbot de atención al cliente.md"),
+  rawContentPath: resolveRawContentPath(process.env.RAW_CONTENT_PATH),
   chatInactivityMinutes: Number(process.env.CHAT_INACTIVITY_MINUTES || 1440),
   maxHistoryMessages: Number(process.env.MAX_HISTORY_MESSAGES || 12),
   maxInputChars: Number(process.env.MAX_INPUT_CHARS || 2500),
@@ -39,3 +40,16 @@ export const env = {
   widgetSubtitle: process.env.CHAT_WIDGET_SUBTITLE || "Asesor IA Gratuito",
   projectRoot
 };
+
+function resolveRawContentPath(rawPath) {
+  const cleanValue = `${rawPath || ""}`.trim();
+
+  // dotenv treats "#" as a comment delimiter in unquoted values, so a value like
+  // "./# RAW ..." may be parsed as just "./". When that happens, fall back to
+  // the intended default file path instead of trying to read the project folder.
+  if (!cleanValue || cleanValue === "." || cleanValue === "./") {
+    return path.resolve(projectRoot, defaultRawContentRelativePath);
+  }
+
+  return path.resolve(projectRoot, cleanValue);
+}

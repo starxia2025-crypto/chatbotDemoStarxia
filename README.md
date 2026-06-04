@@ -53,6 +53,12 @@ El backend expone:
 - Configura `DATABASE_URL`, `OPENAI_API_KEY` y `ALLOWED_ORIGINS`.
 - Expón el backend detrás de Nginx o Caddy con HTTPS.
 - Sirve el archivo del widget en `https://tu-dominio-vps.com/widget/chat-widget.js`.
+- Si defines `RAW_CONTENT_PATH` en variables de entorno y el nombre del archivo contiene `#`, ponlo entre comillas.
+  Ejemplo:
+
+```env
+RAW_CONTENT_PATH="./# RAW para chatbot de atención al cliente.md"
+```
 
 ### EasyPanel con Dockerfile
 
