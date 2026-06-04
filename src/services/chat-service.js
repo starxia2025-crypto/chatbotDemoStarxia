@@ -53,6 +53,20 @@ function fallbackReply() {
   return "Ahora mismo no he podido responder bien por un problema temporal. Si quieres, cuéntame en una frase qué necesitas y lo intentamos de nuevo, o te preparo el paso para que Starxia revise tu caso.";
 }
 
+function serializeOpenAiError(error) {
+  return {
+    name: error?.name || null,
+    message: error?.message || null,
+    status: error?.status || error?.statusCode || null,
+    type: error?.type || null,
+    code: error?.code || null,
+    param: error?.param || null,
+    requestId: error?.request_id || error?.headers?.["x-request-id"] || null,
+    cause: error?.cause?.message || null,
+    error: error?.error || null
+  };
+}
+
 export async function processChatMessage({
   conversation,
   message,
@@ -129,6 +143,16 @@ export async function processChatMessage({
     };
   } catch (error) {
     const reply = fallbackReply();
+    console.error("OpenAI chat request failed", {
+      conversationId: conversation.id,
+      preferredModel,
+      model:
+        preferredModel === "premium" ? env.openAiPremiumModel : env.openAiModel,
+      origin,
+      pageUrl,
+      userMessage: cleanMessage,
+      details: serializeOpenAiError(error)
+    });
     await appendMessage({
       conversationId: conversation.id,
       role: "assistant",
