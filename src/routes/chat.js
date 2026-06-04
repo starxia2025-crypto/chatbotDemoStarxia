@@ -11,7 +11,7 @@ import {
   updateConversationIntent
 } from "../services/conversation-service.js";
 import { logChatEvent } from "../services/event-service.js";
-import { processChatMessage } from "../services/chat-service.js";
+import { processChatMessage, runOpenAiDebugChecks } from "../services/chat-service.js";
 import {
   advanceLeadCapture,
   getLeadCaptureState,
@@ -316,6 +316,19 @@ chatRouter.post("/api/chat/event", async (req, res, next) => {
     });
 
     res.status(201).json({ ok: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+chatRouter.get("/api/debug/openai", async (req, res, next) => {
+  try {
+    if (!env.debugOpenAi) {
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    const result = await runOpenAiDebugChecks();
+    res.json(result);
   } catch (error) {
     next(error);
   }

@@ -223,3 +223,76 @@ async function createPrimaryCompletion({
     max_tokens: 500
   });
 }
+
+export async function runOpenAiDebugChecks() {
+  const model = env.openAiModel;
+  const systemPrompt = await buildSystemPrompt();
+
+  const result = {
+    model,
+    simple: null,
+    contextual: null
+  };
+
+  try {
+    const simpleResponse = await client.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: "system",
+          content: RESCUE_SYSTEM_PROMPT
+        },
+        {
+          role: "user",
+          content: "Di solo hola."
+        }
+      ],
+      max_tokens: 30
+    });
+
+    result.simple = {
+      ok: true,
+      reply: simpleResponse.choices?.[0]?.message?.content?.trim?.() || "",
+      usage: extractUsage(simpleResponse)
+    };
+  } catch (error) {
+    result.simple = {
+      ok: false,
+      error: serializeOpenAiError(error)
+    };
+  }
+
+  try {
+    const contextualResponse = await client.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt
+        },
+        {
+          role: "user",
+          content: buildUserPrompt("hola", {
+            origin: "debug.starxia.com",
+            pageUrl: "https://debug.starxia.com/",
+            suggestedIntent: "general"
+          })
+        }
+      ],
+      max_tokens: 120
+    });
+
+    result.contextual = {
+      ok: true,
+      reply: contextualResponse.choices?.[0]?.message?.content?.trim?.() || "",
+      usage: extractUsage(contextualResponse)
+    };
+  } catch (error) {
+    result.contextual = {
+      ok: false,
+      error: serializeOpenAiError(error)
+    };
+  }
+
+  return result;
+}
