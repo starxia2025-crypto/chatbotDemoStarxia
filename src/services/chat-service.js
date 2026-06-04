@@ -15,6 +15,14 @@ const client = new OpenAI({
   apiKey: env.openAiApiKey
 });
 
+const RESCUE_SYSTEM_PROMPT = `
+Eres Starxist, el asistente de Starxia.
+Responde siempre en español, de forma breve, clara y profesional.
+Tu objetivo es ayudar a negocios con dudas sobre webs, apps, automatizaciones o chatbots.
+Cuando encaje, menciona de forma natural que Starxia puede ayudar con una web, automatización, chat IA o proyecto a medida.
+No inventes precios cerrados para proyectos personalizados ni prometas resultados.
+`;
+
 function mapHistoryToMessages(history) {
   return history.map((message) => ({
     role: message.role,
@@ -74,25 +82,15 @@ export async function processChatMessage({
   });
 
   try {
-    const response = await client.chat.completions.create({
-      model: preferredModel === "premium" ? env.openAiPremiumModel : env.openAiModel,
-      temperature: 0.5,
-      max_tokens: 500,
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt
-        },
-        ...mapHistoryToMessages(history),
-        {
-          role: "user",
-          content: buildUserPrompt(cleanMessage, {
-            origin,
-            pageUrl,
-            suggestedIntent: intentResult.intent
-          })
-        }
-      ]
+    const model = preferredModel === "premium" ? env.openAiPremiumModel : env.openAiModel;
+    const response = await createPrimaryCompletion({
+      model,
+      systemPrompt,
+      history,
+      cleanMessage,
+      origin,
+      pageUrl,
+      intent: intentResult.intent
     });
 
     const rawReply = response.choices?.[0]?.message?.content?.trim?.() || "";
@@ -124,7 +122,51 @@ export async function processChatMessage({
       suggestedService: intentResult.suggestedService,
       leadFormSchema: intentResult.shouldShowCta ? buildLeadFormSchema(intentResult) : null
     };
-  } catch (error) {
+  } catch (primaryError) {
+    try {
+      const model = preferredModel === "premium" ? env.openAiPremiumModel : env.openAiModel;
+      const rescueResponse = await client.chat.completions.create({
+        model,
+        messages: [
+          {
+            role: "system",
+            content: RESCUE_SYSTEM_PROMPT
+          },
+          {
+            role: "user",
+            content: cleanMessage
+          }
+        ],
+        max_tokens: 220
+      });
+
+      const rescueRawReply = rescueResponse.choices?.[0]?.message?.content?.trim?.() || "";
+      const rescueReply = sanitizeText(rescueRawReply || fallbackReply(), 4000);
+      const rescueUsage = extractUsage(rescueResponse);
+
+      await appendMessage({
+        conversationId: conversation.id,
+        role: "assistant",
+        content: rescueReply,
+        model: rescueResponse.model || model,
+        tokensIn: rescueUsage.inputTokens,
+        tokensOut: rescueUsage.outputTokens
+      });
+
+      console.warn("Primary OpenAI prompt failed; rescue prompt succeeded.", {
+        conversationId: conversation.id,
+        primaryError: serializeOpenAiError(primaryError)
+      });
+
+      return {
+        reply: rescueReply,
+        intent: intentResult.intent,
+        shouldShowCta: intentResult.shouldShowCta,
+        ctaKind: intentResult.ctaKind,
+        suggestedService: intentResult.suggestedService,
+        leadFormSchema: intentResult.shouldShowCta ? buildLeadFormSchema(intentResult) : null
+      };
+    } catch (error) {
     const reply = fallbackReply();
     const debugError = formatDebugError(error);
     console.error("OpenAI chat request failed", {
@@ -148,5 +190,36 @@ export async function processChatMessage({
       intentResult,
       debugError
     });
+    }
   }
+}
+
+async function createPrimaryCompletion({
+  model,
+  systemPrompt,
+  history,
+  cleanMessage,
+  origin,
+  pageUrl,
+  intent
+}) {
+  return client.chat.completions.create({
+    model,
+    messages: [
+      {
+        role: "system",
+        content: systemPrompt
+      },
+      ...mapHistoryToMessages(history),
+      {
+        role: "user",
+        content: buildUserPrompt(cleanMessage, {
+          origin,
+          pageUrl,
+          suggestedIntent: intent
+        })
+      }
+    ],
+    max_tokens: 500
+  });
 }
