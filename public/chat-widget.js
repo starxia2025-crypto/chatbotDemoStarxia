@@ -107,13 +107,13 @@
 }
 
 .starxia-online-dot {
-  position: absolute;
+ position: absolute;
   width: 13px;
   height: 13px;
   border-radius: 50%;
   background: #22c55e;
-  right: 5px;
-  bottom: 7px;
+  right: 8px;
+  bottom: 9px;
   border: 2px solid #08101f;
 }
 
