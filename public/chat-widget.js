@@ -9,9 +9,10 @@
     avatarUrl: "",
     initialMessages: [
       "Hola, soy Starbot.",
-      "Puedo ayudarte a aclarar qué necesitas para una web, app, automatización o chatbot y orientarte hacia la opción que más te convenga."
+      "Puedo ayudarte a aclarar que necesitas para una web, app, automatizacion o chatbot y orientarte hacia la opcion que mas te convenga."
     ],
-    contactUrl: "https://starxia.com/#contacto"
+    contactUrl: "https://starxia.com/#contacto",
+    launcherGreeting: "Hola, soy Starbot, tu asesor IA gratuito..."
   };
 
   const config = Object.assign({}, defaultConfig, window.STARXIA_CHAT_CONFIG || {});
@@ -57,104 +58,101 @@
         font-family: "Segoe UI", "Helvetica Neue", sans-serif;
       }
       .starxia-launcher {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  border: 1px solid rgba(132, 204, 22, 0.45);
-  background:
-    radial-gradient(circle at top left, rgba(139, 92, 246, 0.4), transparent 35%),
-    linear-gradient(135deg, rgba(10, 14, 35, 0.96), rgba(6, 9, 22, 0.96));
-  border-radius: 999px;
-  padding: 8px 18px 8px 8px;
-  box-shadow: 0 18px 40px rgba(5, 10, 30, 0.42);
-  color: #fff;
-  cursor: pointer;
-  min-width: 260px;
-  backdrop-filter: blur(12px);
-  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.starxia-launcher:hover {
-  border-color: rgba(190, 242, 100, 0.9);
-  transform: translateY(-1px);
-}
-
-.starxia-avatar {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  outline: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-  flex: 0 0 auto;
-}
-
-.starxia-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  border: none;
-  border-radius: 50%;
-  box-shadow: none;
-  outline: none;
-}
-
-.starxia-online-dot {
- position: absolute;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: #22c55e;
-  right: 8px;
-  bottom: 9px;
-  border: 2px solid #08101f;
-}
-
-.starxia-launcher-copy {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.starxia-launcher-title {
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: #ffffff;
-  transition: color 0.2s ease;
-}
-
-.starxia-launcher:hover .starxia-launcher-title {
-  color: #bef264;
-}
-
-.starxia-launcher-badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 13px;
-  color: #bef264;
-  padding: 7px 13px;
-  border-radius: 999px;
-  border: 1px solid rgba(132, 204, 22, 0.65);
-  background: rgba(5, 20, 6, 0.38);
-  font-weight: 700;
-  white-space: nowrap;
-}
-      
+        display: inline-flex;
+        align-items: flex-end;
+        gap: 12px;
+        padding: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+      }
+      .starxia-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+        flex: 0 0 auto;
+        box-shadow: 0 20px 40px rgba(5, 10, 30, 0.28);
+        transition: transform 0.22s ease, box-shadow 0.22s ease;
+      }
+      .starxia-launcher:hover .starxia-avatar {
+        transform: translateY(-2px);
+        box-shadow: 0 24px 44px rgba(5, 10, 30, 0.36);
+      }
+      .starxia-avatar img,
+      .starxia-header-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .starxia-online-dot {
+        position: absolute;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: #22c55e;
+        right: 7px;
+        bottom: 8px;
+        border: 2px solid #08101f;
+      }
+      .starxia-launcher-prompt {
+        position: relative;
+        max-width: min(340px, calc(100vw - 136px));
+        min-height: 26px;
+        padding: 15px 18px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #ff6f3c, #f3521e);
+        color: #fff;
+        box-shadow: 0 20px 40px rgba(243, 82, 30, 0.24);
+        opacity: 0;
+        transform: translateY(10px) scale(0.94);
+        transform-origin: bottom right;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+      .starxia-launcher-prompt::after {
+        content: "";
+        position: absolute;
+        right: -7px;
+        bottom: 13px;
+        width: 18px;
+        height: 18px;
+        background: #f45a24;
+        border-radius: 3px 12px 3px 12px;
+        transform: rotate(45deg);
+      }
+      .starxia-launcher-prompt.is-visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      .starxia-launcher-prompt-text {
+        display: block;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.35;
+        letter-spacing: -0.02em;
+      }
+      .starxia-launcher-prompt.is-typing .starxia-launcher-prompt-text::after {
+        content: "";
+        display: inline-block;
+        width: 1px;
+        height: 1.1em;
+        margin-left: 2px;
+        vertical-align: -2px;
+        background: rgba(255,255,255,0.9);
+        animation: starxia-caret-blink 0.95s step-end infinite;
+      }
+      @keyframes starxia-caret-blink {
+        50% {
+          opacity: 0;
+        }
+      }
       .starxia-panel {
         width: min(390px, calc(100vw - 24px));
         height: min(680px, calc(100vh - 120px));
         background:
-          radial-gradient(circle at top, rgba(124, 58, 237, 0.20), transparent 30%),
+          radial-gradient(circle at top, rgba(124, 58, 237, 0.2), transparent 30%),
           linear-gradient(180deg, #0b1220, #060b18);
         border: 1px solid rgba(168, 85, 247, 0.25);
         border-radius: 28px;
@@ -261,21 +259,6 @@
         cursor: pointer;
         width: 100%;
       }
-      .starxia-cta-button--secondary {
-        background: rgba(255,255,255,0.08);
-        color: #fff;
-        border: 1px solid rgba(255,255,255,0.12);
-      }
-      .starxia-composer textarea {
-        width: 100%;
-        border-radius: 14px;
-        border: 1px solid rgba(255,255,255,0.10);
-        background: rgba(6, 12, 26, 0.95);
-        color: #fff;
-        padding: 11px 12px;
-        font-size: 14px;
-        box-sizing: border-box;
-      }
       .starxia-composer {
         padding: 14px 18px 18px;
         border-top: 1px solid rgba(255,255,255,0.06);
@@ -288,10 +271,17 @@
         gap: 10px;
       }
       .starxia-composer textarea {
+        width: 100%;
         min-height: 54px;
         max-height: 120px;
         resize: vertical;
         padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(6, 12, 26, 0.95);
+        color: #fff;
+        font-size: 14px;
+        box-sizing: border-box;
       }
       .starxia-send {
         min-width: 96px;
@@ -313,41 +303,50 @@
       @media (max-width: 600px) {
         #starxia-chat-widget {
           right: 12px;
-          left: 12px;
+          left: auto;
           bottom: 12px;
         }
         .starxia-launcher {
-          width: 100%;
-          min-width: 0;
+          gap: 10px;
+        }
+        .starxia-avatar {
+          width: 66px;
+          height: 66px;
+        }
+        .starxia-launcher-prompt {
+          max-width: min(220px, calc(100vw - 108px));
+          padding: 12px 14px;
+        }
+        .starxia-launcher-prompt-text {
+          font-size: 14px;
         }
         .starxia-panel {
-          width: 100%;
+          width: calc(100vw - 24px);
           height: min(76vh, 680px);
         }
       }
     </style>
-    <button type="button" class="starxia-launcher" aria-label="Abrir chat de Starxia">
-      <span class="starxia-avatar">
-        ${config.avatarUrl ? `<img src="${config.avatarUrl}" alt="Avatar de Starxist" />` : "AI"}
-        <span class="starxia-online-dot"></span>
+    <button type="button" class="starxia-launcher" aria-label="Abrir chat de Starbot">
+      <span class="starxia-launcher-prompt" aria-hidden="true">
+        <span class="starxia-launcher-prompt-text"></span>
       </span>
-      <span class="starxia-launcher-copy">
-        <span class="starxia-launcher-title">${escapeHtml(config.title)}</span>
-        <span class="starxia-launcher-badge">${escapeHtml(config.subtitle)}</span>
+      <span class="starxia-avatar">
+        ${config.avatarUrl ? `<img src="${config.avatarUrl}" alt="Avatar de Starbot" />` : "AI"}
+        <span class="starxia-online-dot"></span>
       </span>
     </button>
     <section class="starxia-panel" aria-live="polite">
       <header class="starxia-header">
         <div class="starxia-header-meta">
           <div class="starxia-header-avatar">
-            ${config.avatarUrl ? `<img src="${config.avatarUrl}" alt="Avatar de Starxist" />` : ""}
+            ${config.avatarUrl ? `<img src="${config.avatarUrl}" alt="Avatar de Starbot" />` : ""}
           </div>
           <div>
             <div class="starxia-header-title">${escapeHtml(config.title)}</div>
             <div class="starxia-header-subtitle">${escapeHtml(config.subtitle)}</div>
           </div>
         </div>
-        <button type="button" class="starxia-close" aria-label="Cerrar chat">×</button>
+        <button type="button" class="starxia-close" aria-label="Cerrar chat">&times;</button>
       </header>
       <div class="starxia-messages"></div>
       <div class="starxia-composer">
@@ -363,6 +362,8 @@
   document.body.appendChild(root);
 
   const launcher = root.querySelector(".starxia-launcher");
+  const launcherPrompt = root.querySelector(".starxia-launcher-prompt");
+  const launcherPromptText = root.querySelector(".starxia-launcher-prompt-text");
   const panel = root.querySelector(".starxia-panel");
   const closeButton = root.querySelector(".starxia-close");
   const messagesEl = root.querySelector(".starxia-messages");
@@ -373,6 +374,9 @@
   let conversationId = null;
   let sessionLoaded = false;
   let leadCaptureActive = false;
+  let launcherRevealTimer = null;
+  let launcherTypingDelayTimer = null;
+  let launcherTypingTimer = null;
 
   async function request(path, options) {
     const response = await fetch(config.apiBase.replace(/\/$/, "") + path, {
@@ -391,12 +395,53 @@
 
   function updateLeadCaptureUi() {
     if (leadCaptureActive) {
-      helperText.textContent = "Estoy recogiendo tus datos para derivar tu caso. Puedes responder por aquí y te iré guiando.";
+      helperText.textContent = "Estoy recogiendo tus datos para derivar tu caso. Puedes responder por aqui y te ire guiando.";
       textarea.placeholder = "Escribe tu respuesta...";
     } else {
       helperText.textContent = "Puedo orientarte sobre webs, apps, automatizaciones y soluciones con IA.";
       textarea.placeholder = "Escribe tu duda...";
     }
+  }
+
+  function clearLauncherTimers() {
+    if (launcherRevealTimer) {
+      window.clearTimeout(launcherRevealTimer);
+      launcherRevealTimer = null;
+    }
+    if (launcherTypingDelayTimer) {
+      window.clearTimeout(launcherTypingDelayTimer);
+      launcherTypingDelayTimer = null;
+    }
+    if (launcherTypingTimer) {
+      window.clearInterval(launcherTypingTimer);
+      launcherTypingTimer = null;
+    }
+  }
+
+  function startLauncherSequence() {
+    clearLauncherTimers();
+    launcherPrompt.classList.remove("is-visible", "is-typing");
+    launcherPromptText.textContent = "";
+
+    launcherRevealTimer = window.setTimeout(() => {
+      launcherPrompt.classList.add("is-visible");
+    }, 1000);
+
+    launcherTypingDelayTimer = window.setTimeout(() => {
+      const fullText = config.launcherGreeting || defaultConfig.launcherGreeting;
+      let index = 0;
+      launcherPrompt.classList.add("is-typing");
+      launcherTypingTimer = window.setInterval(() => {
+        index += 1;
+        launcherPromptText.textContent = fullText.slice(0, index);
+
+        if (index >= fullText.length) {
+          window.clearInterval(launcherTypingTimer);
+          launcherTypingTimer = null;
+          launcherPrompt.classList.remove("is-typing");
+        }
+      }, 35);
+    }, 2000);
   }
 
   function renderMessage(role, content, options) {
@@ -447,24 +492,20 @@
 
   function renderLeadCard(schema, ctaKind, suggestedService) {
     const card = document.createElement("div");
+    const buttonLabel =
+      ctaKind === "quote"
+        ? "Ir al formulario de contacto"
+        : "Hablar con Starxia";
+
     card.className = "starxia-cta";
     card.innerHTML = `
-      <div class="starxia-cta-title">${escapeHtml(schema.title || "Cuéntanos tu caso")}</div>
-      <div class="starxia-cta-copy">${escapeHtml(schema.description || "Déjanos contexto y Starxia podrá ayudarte mejor.")}</div>
+      <div class="starxia-cta-title">${escapeHtml(schema.title || "Cuentanos tu caso")}</div>
+      <div class="starxia-cta-copy">${escapeHtml(schema.description || "Dejanos contexto y Starxia podra ayudarte mejor.")}</div>
       ${suggestedService ? `<div class="starxia-cta-copy">Servicio sugerido: <strong>${escapeHtml(suggestedService)}</strong></div>` : ""}
-      <button type="button" class="starxia-cta-button starxia-cta-chat">${ctaKind === "quote" ? "Responder por chat" : "Quiero que me guiéis por chat"}</button>
-      <button type="button" class="starxia-cta-button starxia-cta-button--secondary starxia-cta-form">Ir al formulario de contacto</button>
+      <button type="button" class="starxia-cta-button starxia-cta-contact">${buttonLabel}</button>
     `;
 
-    const chatButton = card.querySelector(".starxia-cta-chat");
-    const contactButton = card.querySelector(".starxia-cta-form");
-    if (chatButton) {
-      chatButton.remove();
-    }
-    if (contactButton) {
-      contactButton.classList.remove("starxia-cta-button--secondary");
-    }
-
+    const contactButton = card.querySelector(".starxia-cta-contact");
     contactButton.addEventListener("click", () => {
       logEvent("cta_contact_click", {
         cta_kind: ctaKind || null,
@@ -574,6 +615,7 @@
   }
 
   launcher.addEventListener("click", async () => {
+    clearLauncherTimers();
     panel.classList.add("is-open");
     launcher.classList.add("starxia-hidden");
     await ensureSession();
@@ -583,6 +625,9 @@
   closeButton.addEventListener("click", () => {
     panel.classList.remove("is-open");
     launcher.classList.remove("starxia-hidden");
+    if (!launcherPromptText.textContent) {
+      startLauncherSequence();
+    }
     logEvent("widget_closed");
   });
 
@@ -593,4 +638,6 @@
       sendMessage();
     }
   });
+
+  startLauncherSequence();
 })();
