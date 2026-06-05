@@ -238,6 +238,19 @@
       .starxia-message-body strong {
         color: #ffffff;
       }
+      .starxia-message.is-typing .starxia-message-body {
+        white-space: pre-wrap;
+      }
+      .starxia-message.is-typing .starxia-message-body::after {
+        content: "";
+        display: inline-block;
+        width: 1px;
+        height: 1.05em;
+        margin-left: 2px;
+        vertical-align: -2px;
+        background: rgba(255,255,255,0.9);
+        animation: starxia-caret-blink 0.9s step-end infinite;
+      }
       .starxia-message--assistant {
         align-self: flex-start;
         background: rgba(16, 24, 44, 0.96);
@@ -490,6 +503,8 @@
     } else if (settings.scrollMode === "preserve") {
       messagesEl.scrollTop = previousScrollTop;
     }
+
+    return message;
   }
 
   function formatInlineText(text) {
@@ -536,27 +551,83 @@
   }
 
   function revealAssistantContent(messageEl, hasCta) {
+    const targetScrollTop = getPinnedUserScrollTarget();
+    if (hasCta && messageEl) {
+      messagesEl.scrollTop = targetScrollTop;
+      return;
+    }
+    messagesEl.scrollTop = targetScrollTop;
+  }
+
+  function getPinnedUserScrollTarget() {
     const userMessages = messagesEl.querySelectorAll(".starxia-message--user");
     const lastUserMessage = userMessages[userMessages.length - 1];
-    const messageHeight = messageEl ? messageEl.offsetHeight : 0;
-    const shouldAutoScroll =
-      !hasCta &&
-      messageHeight > 0 &&
-      messageHeight <= 140;
-
-    if (shouldAutoScroll) {
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-      return;
-    }
-
     if (!lastUserMessage) {
-      return;
+      return messagesEl.scrollHeight;
     }
 
-    const containerRect = messagesEl.getBoundingClientRect();
-    const userRect = lastUserMessage.getBoundingClientRect();
-    const safeOffset = Math.max(0, userRect.bottom - containerRect.bottom + 24);
-    messagesEl.scrollTop += safeOffset;
+    return Math.max(0, lastUserMessage.offsetTop - 18);
+  }
+
+  function animateScrollTo(targetScrollTop, duration) {
+    const startTop = messagesEl.scrollTop;
+    const distance = targetScrollTop - startTop;
+
+    if (Math.abs(distance) < 2) {
+      messagesEl.scrollTop = targetScrollTop;
+      return Promise.resolve();
+    }
+
+    const startTime = performance.now();
+    const totalDuration = duration || 420;
+
+    return new Promise((resolve) => {
+      function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / totalDuration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        messagesEl.scrollTop = startTop + (distance * eased);
+
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        } else {
+          messagesEl.scrollTop = targetScrollTop;
+          resolve();
+        }
+      }
+
+      window.requestAnimationFrame(step);
+    });
+  }
+
+  async function typeAssistantReply(content) {
+    const assistantMessage = renderMessage("assistant", "", { scrollMode: "preserve" });
+    const body = assistantMessage.querySelector(".starxia-message-body");
+    const fullText = String(content || "");
+    const targetScrollTop = getPinnedUserScrollTarget();
+
+    assistantMessage.classList.add("is-typing");
+    const scrollPromise = animateScrollTo(targetScrollTop, 420);
+
+    let index = 0;
+    const typingDelay = Math.max(14, Math.min(24, Math.floor(1600 / Math.max(fullText.length, 1))));
+
+    await new Promise((resolve) => {
+      const timer = window.setInterval(() => {
+        index += 1;
+        body.textContent = fullText.slice(0, index);
+
+        if (index >= fullText.length) {
+          window.clearInterval(timer);
+          resolve();
+        }
+      }, typingDelay);
+    });
+
+    await scrollPromise;
+    assistantMessage.classList.remove("is-typing");
+    body.innerHTML = formatAssistantMessage(fullText);
+    return assistantMessage;
   }
 
   function renderLeadCard(schema, ctaKind, suggestedService) {
@@ -660,8 +731,7 @@
       conversationId = payload.conversation_id;
       leadCaptureActive = !!payload.lead_capture_active;
       updateLeadCaptureUi();
-      renderMessage("assistant", payload.reply, { scrollMode: "preserve" });
-      const assistantMessage = messagesEl.lastElementChild;
+      const assistantMessage = await typeAssistantReply(payload.reply);
 
       if (payload.should_show_cta && payload.lead_form_schema) {
         renderLeadCard(payload.lead_form_schema, payload.cta_kind, payload.suggested_service);
