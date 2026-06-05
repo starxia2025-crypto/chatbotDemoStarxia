@@ -217,7 +217,26 @@
         border-radius: 20px;
         line-height: 1.45;
         font-size: 14px;
-        white-space: pre-wrap;
+      }
+      .starxia-message-body > *:first-child {
+        margin-top: 0;
+      }
+      .starxia-message-body > *:last-child {
+        margin-bottom: 0;
+      }
+      .starxia-message-body p {
+        margin: 0 0 10px;
+      }
+      .starxia-message-body ul,
+      .starxia-message-body ol {
+        margin: 0 0 12px 18px;
+        padding: 0;
+      }
+      .starxia-message-body li {
+        margin: 0 0 8px;
+      }
+      .starxia-message-body strong {
+        color: #ffffff;
       }
       .starxia-message--assistant {
         align-self: flex-start;
@@ -455,7 +474,14 @@
     message.className =
       "starxia-message " +
       (role === "user" ? "starxia-message--user" : "starxia-message--assistant");
-    message.textContent = content;
+    const body = document.createElement("div");
+    body.className = "starxia-message-body";
+    if (role === "assistant") {
+      body.innerHTML = formatAssistantMessage(content);
+    } else {
+      body.textContent = content;
+    }
+    message.appendChild(body);
     const previousScrollTop = messagesEl.scrollTop;
     messagesEl.appendChild(message);
 
@@ -464,6 +490,47 @@
     } else if (settings.scrollMode === "preserve") {
       messagesEl.scrollTop = previousScrollTop;
     }
+  }
+
+  function formatInlineText(text) {
+    return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  }
+
+  function formatAssistantMessage(content) {
+    const source = String(content || "").replace(/\r\n/g, "\n");
+    const normalized = source
+      .replace(/(\d+)\.\s+\*\*/g, "\n$1. **")
+      .replace(/(\d+)\.\s+(?=[A-ZÁÉÍÓÚÑ])/g, "\n$1. ")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+    const blocks = normalized.split(/\n\s*\n/).filter(Boolean);
+    const html = [];
+
+    blocks.forEach((block) => {
+      const lines = block.split("\n").map((line) => line.trim()).filter(Boolean);
+      if (!lines.length) {
+        return;
+      }
+
+      const ordered = lines.every((line) => /^\d+\.\s+/.test(line));
+      const unordered = lines.every((line) => /^[-*]\s+/.test(line));
+
+      if (ordered || unordered) {
+        const tag = ordered ? "ol" : "ul";
+        const items = lines.map((line) => {
+          const clean = ordered
+            ? line.replace(/^\d+\.\s+/, "")
+            : line.replace(/^[-*]\s+/, "");
+          return `<li>${formatInlineText(clean)}</li>`;
+        });
+        html.push(`<${tag}>${items.join("")}</${tag}>`);
+        return;
+      }
+
+      html.push(`<p>${formatInlineText(lines.join(" "))}</p>`);
+    });
+
+    return html.join("") || `<p>${formatInlineText(source)}</p>`;
   }
 
   function revealAssistantContent(messageEl, hasCta) {
