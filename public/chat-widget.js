@@ -499,8 +499,10 @@
   function formatAssistantMessage(content) {
     const source = String(content || "").replace(/\r\n/g, "\n");
     const normalized = source
-      .replace(/(\d+)\.\s+\*\*/g, "\n$1. **")
-      .replace(/(\d+)\.\s+(?=[A-ZÁÉÍÓÚÑ])/g, "\n$1. ")
+      .replace(/:\s*(\d+\.\s+)/g, ":\n\n$1")
+      .replace(/([^.:\n])\s+(\d+\.\s+\*\*)/g, "$1\n\n$2")
+      .replace(/([^.:\n])\s+(\d+\.\s+(?=[A-ZÁÉÍÓÚÑ]))/g, "$1\n\n$2")
+      .replace(/(\d+\.\s+\*\*[^*]+\*\*:[^.\n]*\.)\s+(?=\d+\.\s+)/g, "$1\n\n")
       .replace(/\n{3,}/g, "\n\n")
       .trim();
     const blocks = normalized.split(/\n\s*\n/).filter(Boolean);

@@ -18,6 +18,8 @@ const client = new OpenAI({
 const RESCUE_SYSTEM_PROMPT = `
 Eres Starxist, el asistente de Starxia.
 Responde siempre en español, de forma breve, clara y profesional.
+Normalmente usa 2 a 4 frases cortas.
+Si das una lista, que tenga como maximo 3 puntos breves.
 Tu objetivo es ayudar a negocios con dudas sobre webs, apps, automatizaciones o chatbots.
 Cuando encaje, menciona de forma natural que Starxia puede ayudar con una web, automatización, chat IA o proyecto a medida.
 No inventes precios cerrados para proyectos personalizados ni prometas resultados.
@@ -220,7 +222,7 @@ async function createPrimaryCompletion({
         })
       }
     ],
-    max_tokens: 500
+    max_tokens: 260
   });
 }
 
