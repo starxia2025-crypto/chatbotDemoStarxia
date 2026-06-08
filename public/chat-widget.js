@@ -65,6 +65,19 @@
         border: none;
         background: transparent;
         cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        outline: none;
+        box-shadow: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .starxia-launcher:hover,
+      .starxia-launcher:active,
+      .starxia-launcher:focus,
+      .starxia-launcher:focus-visible {
+        background: transparent;
+        outline: none;
+        box-shadow: none;
       }
       .starxia-avatar {
         width: 72px;
